@@ -8,7 +8,7 @@ use Toyota\Component\Ldap;
 class AddressBook extends DAV\Collection implements CardDAV\IAddressBook, DAV\IMultiGet
 {
     private static $ATTRS = [
-        'uid', 'cn', 'givenName', 'sn', 'telephoneNumber'
+        'uid', 'cn', 'givenName', 'sn', 'telephoneNumber', 'mail', 'mobile', 'street', 'postalCode', 'l'
     ];
     /** @var Ldap\Core\Manager */
     private $ldap;
@@ -19,19 +19,19 @@ class AddressBook extends DAV\Collection implements CardDAV\IAddressBook, DAV\IM
     {
         $this->ldap = new Ldap\Core\Manager(
             [
-                'hostname' => 'ldap.su.se',
+                'hostname' => 'pbnl.de',
                 'base_dn'  => $base_dn,
                 'security' => 'SSL'
             ],
             new Ldap\Platform\Native\Driver
         );
         $this->ldap->connect();
-        $this->ldap->bind();
+        $this->ldap->bind(getenv("ldap_bind_dn"), getenv("ldap_bind_password"));
     }
 
     public function getName()
     {
-        return 'sukat';
+        return 'pbnl';
     }
 
     public function getChildren()
@@ -39,7 +39,7 @@ class AddressBook extends DAV\Collection implements CardDAV\IAddressBook, DAV\IM
         if (!isset($this->children)) {
             $entries = $this->ldap->search(
                 null,
-                '(telephoneNumber=*)',
+                '(givenName=*)',
                 true,
                 self::$ATTRS
             );

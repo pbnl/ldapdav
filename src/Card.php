@@ -19,12 +19,16 @@ class Card extends DAV\File implements CardDAV\ICard
 
         $vcard = new VCard(
             [
-                'FN'  => $entry->get('cn')[0],
+                'FN'  => $entry->get('cn')[0] .  " " . $entry->get('sn')[0],
                 'N'   => [ $entry->get('sn')[0],
-                           $entry->get('givenname')[0] ],
-                'TEL' => $shortTel,
+                            $entry->get('cn')[0] ],
+                "NICKNAME" => $entry->get('uid')[0],
             ]
         );
+        isset($entry->get("mail")[0]) ? $vcard->add("EMAIL", $entry->get("mail")[0]) : null;
+        isset($entry->get("telephonenumber")[0]) ? $vcard->add("TEL", $entry->get("telephonenumber")[0],["type"=>"MAIN"]) : null;
+        isset($entry->get("mobile")[0]) ? $vcard->add("TEL", $entry->get("mobile")[0],["type"=>"CELL"]) : null;
+        $vcard->add("ADR", [null, null, $entry->get("street")[0], null, null, $entry->get("postalcode")[0], $entry->get("l")[0]],["type"=>"HOME"]);
 
         $this->data = $vcard->serialize();
     }
